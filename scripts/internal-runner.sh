@@ -1,44 +1,31 @@
 #!/bin/bash
 
-# Configuration (Customize these!)
-OUTPUT_FILE="/src/gource-of-truth/evolution.mp4"
-RESOLUTION="1920x1080"
-FRAMERATE=60
+# Configuration
+# Output to a date-stamped file in the output/ directory
+DATE_STR=$(date +%Y-%m-%d)
+OUTPUT_DIR="/output"
+mkdir -p "$OUTPUT_DIR"
+OUTPUT_FILE="$OUTPUT_DIR/${DATE_STR}.mp4"
 
-SKIP_LIST=("ollama-linux-amd-apu")
+# Ensure we source common.sh from the same directory as this script
+source "$(dirname "$0")/common.sh"
 
 echo "Starting the Gource of Truth harvest..."
+echo "Scan Root: $SCAN_ROOT"
 
 # 1. Generate and prefix logs for all peer directories
 LOG_FILE="/tmp/combined_gource.txt"
 rm -f $LOG_FILE
+rm -f /tmp/unsorted.txt
 
-for d in /src/*/ ; do
-    repo_name=$(basename "$d")
-    
-    # Check if the repo_name is in our SKIP_LIST
-    skip=false
-    for skip_item in "${SKIP_LIST[@]}"; do
-        if [[ "$repo_name" == "$skip_item" ]]; then
-            skip=true
-            break
-        fi
-    done
-
-    # Skip if it's in the list or not a git repo
-    if [ "$skip" = true ]; then
-        echo "  - Skipping $repo_name (on skip list)"
-        continue
-    fi
-
-    if [ ! -d "$d/.git" ]; then
-        echo "  - Skipping $repo_name (no .git folder)"
-        continue
-    fi
-
+# Use get_repos from common.sh
+for repo_path in $(get_repos); do
+    repo_name=$(basename "$repo_path")
     echo "Processing: $repo_name"
+    
     # Generate custom log and prefix the path with the repo name
-    gource --output-custom-log - "$d" | sed "s/|\//|\/$repo_name\//" >> /tmp/unsorted.txt
+    # We use repo_path directly
+    gource --output-custom-log - "$repo_path" | sed "s/|\//|\/$repo_name\//" >> /tmp/unsorted.txt
 done
 
 # 2. Sort the combined logs chronologically

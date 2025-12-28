@@ -19,8 +19,14 @@ RUN apk add --no-cache \
 # We will mount your ~/git folder to /src
 WORKDIR /src
 
-# Create a script to handle the "Pseudo-Mono" merging
-COPY gource-of-truth.sh /usr/local/bin/gource-of-truth.sh
-RUN chmod +x /usr/local/bin/gource-of-truth.sh
+# Copy configuration and scripts
+# We place them in /usr/local/got so they stay together
+RUN mkdir -p /usr/local/got
+COPY got.conf /usr/local/got/
+COPY scripts /usr/local/got/scripts/
 
-ENTRYPOINT ["/usr/local/bin/gource-of-truth.sh"]
+# Make scripts executable
+RUN chmod +x /usr/local/got/scripts/*.sh
+
+# Symlink the internal runner to a simpler path if desired, or just use ENTRYPOINT
+ENTRYPOINT ["/usr/local/got/scripts/internal-runner.sh"]
