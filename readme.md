@@ -31,6 +31,15 @@ Run the wrapper script:
 ./super-gource.sh
 ```
 
+You can customize the rendering using environment variables:
+
+```bash
+START_DATE="2023-01-01" RESOLUTION="1280x720" ./super-gource.sh
+```
+
+*   `START_DATE`: The date to start the visualization from (default: `2025-01-01`).
+*   `RESOLUTION`: The output video resolution (default: `1920x1080`).
+
 This will:
 1.  Build the container image.
 2.  Mount the parent directory (`../`) into the container.

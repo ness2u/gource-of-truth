@@ -23,6 +23,8 @@ podman run --rm \
     -v "$(pwd)/..:/src:z" \
     -v "$(pwd)/output:/output:z" \
     -e SCAN_ROOT="/src" \
+    -e START_DATE \
+    -e RESOLUTION \
     "${IMAGE_NAME}:${CONTAINER_TAG}"
 
 echo "✅ Done."

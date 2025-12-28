@@ -32,10 +32,13 @@ done
 sort -n /tmp/unsorted.txt > $LOG_FILE
 
 echo "Step 3: Rendering with full detail (this may take a while)..."
-xvfb-run -s "-screen 0 1920x1080x24" \
+START_DATE=${START_DATE:-'2025-01-01'}
+RESOLUTION=${RESOLUTION:-'1920x1080'}
+
+xvfb-run -s "-screen 0 ${RESOLUTION}x24" \
     gource $LOG_FILE \
-    -1920x1080 \
-    --start-date '2025-01-01' \
+    -${RESOLUTION} \
+    --start-date "${START_DATE}" \
     --auto-skip-seconds 1 \
     --seconds-per-day 2 \
     --file-idle-time 0 \
