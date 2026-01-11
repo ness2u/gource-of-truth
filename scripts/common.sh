@@ -32,25 +32,25 @@ list_contains() {
 # Function to get a list of git repositories
 get_repos() {
     local root="${SCAN_ROOT%/}" # Remove trailing slash if present
-    
-    # If explicit includes are set (and not empty), use those (expanding relative to root if needed)
-    # For now, we'll stick to scanning ROOT.
 
-    # Find directories in SCAN_ROOT
-    for d in "$root"/*/; do
-        [ -d "$d" ] || continue # Handle empty glob
+    # Use find to locate directories containing .git
+    # -maxdepth 3 allows: root/category/project/.git
+    find "$root" -maxdepth 3 -name ".git" -type d | sort | while read gitdir; do
+        local repo_path="$(dirname "$gitdir")"
+        local repo_name="$(basename "$repo_path")"
+        local category_dir="$(dirname "$repo_path")"
+        local category_name="$(basename "$category_dir")"
+
+        # Ignore 'work' category explicitly as per mandates
+        if [[ "$category_name" == "work" || "$repo_name" == "work" ]]; then
+            continue
+        fi
         
-        local repo_path="${d%/}"
-        local repo_name=$(basename "$repo_path")
-
         # Check Ignore List
         if list_contains "$IGNORE_NAMES" "$repo_name"; then
             continue
         fi
 
-        # Check if it is actually a git repo
-        if [ -d "$repo_path/.git" ]; then
-            echo "$repo_path"
-        fi
+        echo "$repo_path"
     done
 }
