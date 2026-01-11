@@ -73,18 +73,20 @@ This will:
 
 We include a suite of "Super" tools to manage your multi-repo empire. These scripts utilize the same `got.conf` and `common.sh` discovery logic as the visualizer.
 
+**Note:** All scripts accept an optional `[PATH_TO_SCAN]` argument, defaulting to `../../`.
+
 ### `scripts/super-git-status.sh`
 Scans all tracked repositories and gives you a unified status report (Dirty, Ahead, Behind, Synced).
 
 ```bash
-./scripts/super-git-status.sh
+./scripts/super-git-status.sh [PATH_TO_SCAN]
 ```
 
 ### `scripts/super-git-pull.sh`
 Attempts to safely update all tracked repositories. Skips dirty repos, those without upstreams, or those that have diverged.
 
 ```bash
-./scripts/super-git-pull.sh
+./scripts/super-git-pull.sh [PATH_TO_SCAN]
 ```
 
 ### `scripts/super-git-push.sh`
@@ -93,7 +95,7 @@ Safely pushes changes for all repositories that are ahead of their upstream.
 *   **Pushes:** Only if the local branch is strictly ahead of remote.
 
 ```bash
-./scripts/super-git-push.sh
+./scripts/super-git-push.sh [PATH_TO_SCAN]
 ```
 
 ## Configuration

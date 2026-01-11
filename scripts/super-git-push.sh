@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Optional: Override SCAN_ROOT via argument
+if [ -n "$1" ]; then
+    SCAN_ROOT="$(cd "$1" && pwd)"
+fi
+
 # Source the common logic
 source "$(dirname "$0")/common.sh"
 
