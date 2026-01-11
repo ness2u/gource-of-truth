@@ -14,6 +14,23 @@ Powered by an **Alpine Linux** headless rendering engine, this tool utilizes:
 *   **Podman/Docker**: To keep your host machine clean while doing the heavy lifting.
 *   **Custom Bash Tooling**: To discover, filter, and merge disjointed git histories into a unified timeline.
 
+## Project Structure
+
+```text
+lab/gource-of-truth/
+├── docker/                 # Container definition (Dockerfile)
+├── output/                 # Generated video artifacts (mp4)
+├── scripts/                # Management tools and internal logic
+│   ├── common.sh           # Shared library for repo discovery
+│   ├── internal-runner.sh  # The engine running inside the container
+│   ├── super-git-pull.sh   # Mass-updater
+│   ├── super-git-push.sh   # Mass-pusher
+│   └── super-git-status.sh # Mass-reporter
+├── got.conf                # Configuration (ignored patterns)
+├── readme.md               # You are here
+└── super-gource.sh         # Main entry point for video generation
+```
+
 ## Quick Start
 
 ### Prerequisites
@@ -25,10 +42,16 @@ Powered by an **Alpine Linux** headless rendering engine, this tool utilizes:
 2.  Review `got.conf` to configure ignored repositories.
 
 ### Generating the Visualization
-Run the wrapper script:
+Run the wrapper script, optionally specifying the root directory to scan (defaults to `../../`):
 
 ```bash
-./super-gource.sh
+./super-gource.sh [PATH_TO_SCAN]
+```
+
+Examples:
+```bash
+./super-gource.sh ~/git
+./super-gource.sh ~/git/projects
 ```
 
 You can customize the rendering using environment variables:
@@ -42,13 +65,13 @@ START_DATE="2023-01-01" RESOLUTION="1280x720" ./super-gource.sh
 
 This will:
 1.  Build the container image.
-2.  Mount the parent directory (`../`) into the container.
-3.  Scan all sibling directories for git repositories (respecting `got.conf`).
+2.  Mount the target directory to `/src` inside the container.
+3.  **Recursively scan** the target for all git repositories (including **submodules**), respecting `got.conf` and ignoring the `work` directory.
 4.  Render the evolution video to `output/YYYY-MM-DD.mp4`.
 
-## Tools
+## Empire Management Tools
 
-We include a suite of "Super" tools to manage your multi-repo empire.
+We include a suite of "Super" tools to manage your multi-repo empire. These scripts utilize the same `got.conf` and `common.sh` discovery logic as the visualizer.
 
 ### `scripts/super-git-status.sh`
 Scans all tracked repositories and gives you a unified status report (Dirty, Ahead, Behind, Synced).
@@ -58,10 +81,19 @@ Scans all tracked repositories and gives you a unified status report (Dirty, Ahe
 ```
 
 ### `scripts/super-git-pull.sh`
-Attempts to safely update all tracked repositories. Skips dirty repos or those without upstreams.
+Attempts to safely update all tracked repositories. Skips dirty repos, those without upstreams, or those that have diverged.
 
 ```bash
 ./scripts/super-git-pull.sh
+```
+
+### `scripts/super-git-push.sh`
+Safely pushes changes for all repositories that are ahead of their upstream.
+*   **Skips:** Dirty repos, diverged histories, or repos with no upstream.
+*   **Pushes:** Only if the local branch is strictly ahead of remote.
+
+```bash
+./scripts/super-git-push.sh
 ```
 
 ## Configuration

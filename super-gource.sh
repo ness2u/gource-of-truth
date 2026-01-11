@@ -15,12 +15,18 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "🎬 Running Gource..."
-# We mount the parent directory (..) to /src so we can see all peer repos.
-# We set SCAN_ROOT=/src because that's where the repos are inside the container.
-# We mount local ./output to /output so results persist cleanly.
+
+# Determine the scan target (absolute path)
+TARGET_INPUT="${1:-../../}"
+TARGET_PATH="$(cd "$TARGET_INPUT" && pwd)"
+
+echo "Scanning Root: $TARGET_PATH"
+
 mkdir -p output
+
+# We mount the chosen target path to /src inside the container
 podman run --rm \
-    -v "$(pwd)/..:/src:z" \
+    -v "${TARGET_PATH}:/src:z" \
     -v "$(pwd)/output:/output:z" \
     -e SCAN_ROOT="/src" \
     -e START_DATE \

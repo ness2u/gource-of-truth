@@ -33,16 +33,16 @@ list_contains() {
 get_repos() {
     local root="${SCAN_ROOT%/}" # Remove trailing slash if present
 
-    # Use find to locate directories containing .git
-    # -maxdepth 3 allows: root/category/project/.git
-    find "$root" -maxdepth 3 -name ".git" -type d | sort | while read gitdir; do
-        local repo_path="$(dirname "$gitdir")"
+    # Find all .git files or directories
+    # We prune .git directories themselves so we don't look inside them
+    find "$root" -name ".git" -prune -print | sort | while read git_entry; do
+        local repo_path="$(dirname "$git_entry")"
         local repo_name="$(basename "$repo_path")"
-        local category_dir="$(dirname "$repo_path")"
-        local category_name="$(basename "$category_dir")"
-
-        # Ignore 'work' category explicitly as per mandates
-        if [[ "$category_name" == "work" || "$repo_name" == "work" ]]; then
+        
+        # Check if any part of the path contains 'work'
+        # We check the relative path from the root to ensure we catch 'work' at any level
+        # but specifically looking for a 'work' directory in the path.
+        if [[ "$repo_path" == *"/work/"* || "$repo_path" == *"/work" || "$repo_name" == "work" ]]; then
             continue
         fi
         
