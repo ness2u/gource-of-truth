@@ -20,12 +20,22 @@ rm -f /tmp/unsorted.txt
 
 # Use get_repos from common.sh
 for repo_path in $(get_repos); do
-    repo_name=$(basename "$repo_path")
-    echo "Processing: $repo_name"
+    # Calculate relative path (e.g., projects/wiki)
+    # Remove the SCAN_ROOT prefix and leading slash
+    relative_path="${repo_path#$SCAN_ROOT}"
+    relative_path="${relative_path#/}"
     
-    # Generate custom log and prefix the path with the repo name
-    # We use repo_path directly
-    gource --output-custom-log - "$repo_path" | sed "s/|\//|\/$repo_name\//" >> /tmp/unsorted.txt
+    echo "Processing: $relative_path"
+    
+    # Generate custom log and prefix the path with the hierarchy
+    # We replace the root slash in the file path with /relative_path/
+    # Gource log format: timestamp|user|type|/path/to/file
+    # We want: timestamp|user|type|/projects/wiki/path/to/file
+    
+    # Escape slashes for sed
+    safe_prefix=$(echo "$relative_path" | sed 's/\//\\\//g')
+    
+    gource --output-custom-log - "$repo_path" | sed "s/|\//|\/$safe_prefix\//" >> /tmp/unsorted.txt
 done
 
 # 2. Sort the combined logs chronologically
