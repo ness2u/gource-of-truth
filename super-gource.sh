@@ -7,7 +7,7 @@ IMAGE_NAME="gource-of-truth"
 CONTAINER_TAG="latest"
 
 echo "🔨 Building Image..."
-podman build -t "${IMAGE_NAME}:${CONTAINER_TAG}" -f docker/Dockerfile .
+podman build --no-cache -t "${IMAGE_NAME}:${CONTAINER_TAG}" -f docker/Dockerfile .
 
 if [ $? -ne 0 ]; then
     echo "❌ Build failed."
@@ -15,12 +15,12 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "🎬 Running Gource..."
-# We mount the parent directory (..) to /src so we can see all peer repos.
+# We mount the grandparent directory (../..) to /src so we can see all peer repos (lab/, projects/, archive/, etc).
 # We set SCAN_ROOT=/src because that's where the repos are inside the container.
 # We mount local ./output to /output so results persist cleanly.
 mkdir -p output
 podman run --rm \
-    -v "$(pwd)/..:/src:z" \
+    -v "$(pwd)/../..:/src:z" \
     -v "$(pwd)/output:/output:z" \
     -e SCAN_ROOT="/src" \
     -e START_DATE \
