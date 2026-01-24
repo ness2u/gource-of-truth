@@ -66,7 +66,7 @@ START_DATE="2023-01-01" RESOLUTION="1280x720" ./super-gource.sh
 This will:
 1.  Build the container image.
 2.  Mount the target directory to `/src` inside the container.
-3.  **Recursively scan** the target for all git repositories (including **submodules**), respecting `got.conf` and ignoring the `work` directory.
+3.  **Recursively scan** the target for all git repositories (including **submodules**), respecting the exclusion rules in `got.conf`.
 4.  Render the evolution video to `output/YYYY-MM-DD.mp4`.
 
 ## Empire Management Tools
@@ -100,4 +100,4 @@ Safely pushes changes for all repositories that are ahead of their upstream.
 
 ## Configuration
 Edit `got.conf` to control the scan scope:
-*   `IGNORE_NAMES`: List of directory names to exclude (e.g., `node_modules`, `vendor`).
+*   `IGNORE_NAMES`: Space-separated list of path components to exclude. If a repository's path contains any of these names (e.g., `node_modules`, `reference-src`, `work`), it will be skipped.
