@@ -39,17 +39,14 @@ get_repos() {
         local repo_path="$(dirname "$git_entry")"
         local repo_name="$(basename "$repo_path")"
         
-        # Check if any part of the path contains 'work'
-        # We check the relative path from the root to ensure we catch 'work' at any level
-        # but specifically looking for a 'work' directory in the path.
-        if [[ "$repo_path" == *"/work/"* || "$repo_path" == *"/work" || "$repo_name" == "work" ]]; then
-            continue
-        fi
-        
-        # Check Ignore List
-        if list_contains "$IGNORE_NAMES" "$repo_name"; then
-            continue
-        fi
+
+        # Check Ignore List (match against any path component)
+        for ignore_dir in $IGNORE_NAMES; do
+            # Check if path contains the ignore_dir as a segment or ends with it
+            if [[ "$repo_path" == *"/$ignore_dir/"* ]] || [[ "$repo_path" == *"/$ignore_dir" ]] || [[ "$repo_name" == "$ignore_dir" ]]; then
+                continue 2
+            fi
+        done
 
         echo "$repo_path"
     done
