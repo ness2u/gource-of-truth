@@ -17,7 +17,7 @@ Powered by an **Alpine Linux** headless rendering engine, this tool utilizes:
 ## Project Structure
 
 ```text
-lab/gource-of-truth/
+projects/gource-of-truth/
 ├── docker/                 # Container definition (Dockerfile)
 ├── output/                 # Generated video artifacts (mp4)
 ├── scripts/                # Management tools and internal logic
